@@ -20,12 +20,44 @@
                 overflow: hidden;
             }
 
-            .project {
-                -webkit-box-shadow:  0 0 5px gray;
-                -moz-box-shadow:  0 0 5px gray;
-                box-shadow:  0 0 5px gray;
-                text-align: left;
+            .btn {
+                margin: 0 10px;
+            }
+
+            #blackout {
+                background-color: #000;
+                height: 0;
+                left: 0;
+                opacity: 0;
                 overflow: hidden;
+                position: fixed;
+                top: 0;
+                width: 100vw;
+                z-index: 10
+            }
+
+            #payment-box {
+                align-items: center;
+                background-color: white;
+                display: flex;
+                height: 50%;
+                justify-content: center;
+                left: 50vw;
+                position: relative;
+                transform: translate(-50%, -50%);
+                top: 50vh;
+                width: 50%;
+            }
+
+            .project {
+                background-color: white;
+                -webkit-box-shadow: 0 0 5px gray;
+                -moz-box-shadow: 0 0 5px gray;
+                box-shadow: 0 0 5px gray;
+                min-height: 350px;
+                margin: 20px 20px 110px;
+                position: relative;
+                text-align: left;
                 padding: 20px;
             }
 
@@ -36,12 +68,33 @@
                 width: 300px;
             }
 
+            .project > .author {
+                background-color: white;
+                padding: 10px;
+                position: absolute;
+                right: 1px;
+                top: -30%;
+            }
+
+            .project > .author > h4 {
+                display: inline;
+            }
+
+            .project > .author > img {
+                margin-right: 20px;
+                vertical-align: middle;
+            }
+
             #projects {
+                background-image: url(background.png);
+                -webkit-background-size: 10%;
+                background-size: 10%;
                 float: left;
                 height: 100vh;
                 padding: 10%;
                 text-align: center;
-                width: 69vw;
+                overflow-y: auto;
+                width: 100vw;
             }
 
             #register {
@@ -51,9 +104,9 @@
                 display: table;
                 float: right;
                 height: 100vh;
-                left: 30vw;
+                left: 100vw;
                 padding: 20px;
-                position: relative;
+                position: absolute;
                 width: 30vw;
             }
 
@@ -92,10 +145,20 @@
                 position: absolute;
                 top: 0;
             }
+
+            img.round {
+                border-radius: 50%;
+                width: 64px;
+            }
         </style>
         <title>Erbium</title>
     </head>
     <body>
+        <div id="blackout">
+            <div id="payment-box">
+                <div id="paypal-button"></div>
+            </div>
+        </div>
         <div id="projects"></div>
         <div id="register">
             <img id="register-pull-out" src="left-icon.png" alt="Register">
@@ -127,7 +190,7 @@
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
-        <!--<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-firestore.js"></script>-->
+        <script src="https://www.paypalobjects.com/api/checkout.js"></script>
         <script>
             // Initialize Firebase
             const config = {
@@ -175,12 +238,37 @@
                                     thumbnailElement.appendChild(thumbnail);
                                 });
                             }
+                            const profile = document.createElement('img');
+                            profile.classList.add('round');
+                            profile.src = doc.data().profile;
+                            const creator = document.createElement('h4');
+                            creator.textContent = doc.data().creator;
+                            creator.title = doc.data().email;
 
+                            const email = document.createElement('a');
+                            email.textContent = `Help Out`;
+                            email.classList.add('btn');
+                            email.href = `mailto:${doc.data().email}`;
+                            const donate = document.createElement('button');
+                            donate.textContent = `Invest`;
+                            donate.classList.add('btn');
+                            donate.addEventListener('click', e => {
+                                document.getElementById('blackout').style.opacity = `1`;
+                                document.getElementById('blackout').style.height = "100vh";
+                            });
+
+                            const author = document.createElement('div');
+                            author.classList.add('author');
+                            author.appendChild(profile);
+                            author.appendChild(creator);
                             const container = document.createElement('div');
                             container.appendChild(thumbnailElement);
                             container.appendChild(nameElement);
                             container.appendChild(descriptionElement);
                             container.appendChild(priceElement);
+                            container.appendChild(email);
+                            container.appendChild(donate);
+                            container.appendChild(author);
                             container.classList.add('project');
 
                             projects.appendChild(container);
@@ -189,17 +277,22 @@
                 } else firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             });
 
+            const donateForm = document.getElementById('payment-box');
+
             const register = document.getElementById('register');
             const registerPullOut = document.getElementById('register-pull-out');
+            const projects = document.getElementById('projects');
             registerPullOut.addEventListener('click', e => {
                 registerPullOut.classList.contains('right') ? (() => {
+                    projects.style.width = "100vw";
                     registerPullOut.classList.remove('right');
                 })() : (() => {
+                    projects.style.width = "70vw";
                     registerPullOut.classList.add('right');
                 })();
-                register.style.left = register.style.left === "30vw" ? "0" : "30vw";
+                register.style.left = register.style.left === "100vw" ? "70vw" : "100vw";
             });
-            register.style.left = "30vw";
+            register.style.left = "100vw";
 
             const registerForm = document.getElementById('register-form');
             const name = document.getElementById('name');
@@ -223,7 +316,6 @@
             setInterval(() => {
                 const slideshows = document.getElementsByClassName('image-previews');
                 for (let i = 0; i < slideshows.length; i++) {
-                    console.log(`Running a slideshow tick on ${i}`);
                     slideshowTick(slideshows[i]);
                 }
             }, 5000);
@@ -234,18 +326,20 @@
             });
 
             function uploadFilesStartingFrom(i) {
-                console.log(`Starting to upload file ${i}`);
                 firebase.storage().ref().child(`${name.value}${i}`).put(images.files[i]).then(snapshot => {
                     if (i + 1 < images.files.length) {
-                        console.log(`Put ${i}, moving on`);
                         uploadFilesStartingFrom(i + 1);
                     } else {
-                        console.log(`Placed all ${images.files.length}, storing in database.`);
                         firestore.collection('projects').add({
+                            creator: firebase.auth().currentUser.displayName,
+                            email: firebase.auth().currentUser.email,
                             name: name.value,
                             description: description.value,
+                            profile: firebase.auth().currentUser.photoURL,
                             price: price.value,
                             images: images.files.length
+                        }).then(snapshot => {
+                            window.location.reload(true);
                         });
                     }
                 });
@@ -253,11 +347,53 @@
 
             function slideshowTick(container) {
                 let previewImages = container.childNodes;
-                console.log(`Element has ${previewImages.length} attached nodes`);
                 previewImages.forEach(image => {
                     image.style.left = `${(parseInt(image.style.left) - 100) % (previewImages.length * 100)}%`;
                 });
             }
+
+            paypal.Button.render({
+                env: 'sandbox',
+                commit: true,
+                client: {
+                    sandbox: 'AUxYSnSwjhvElqnUl8eTGadmzls-Hm06z4460NJj5nAdORrCBvJFFegeIcuc9KUtv21G8tDBx0v7bQlV'
+                },
+                payment: (data, actions) => {
+                    return actions.payment.create({
+                        payment: {
+                            transactions: [
+                                {
+                                    amount: {total: '1.00', currency: 'USD'}
+                                }
+                            ]
+                        }
+                    });
+                },
+                onAuthorize: function(data, actions) {
+                    return actions.payment.execute().then(function(payment) {
+
+                        // The payment is complete!
+                        // You can now show a confirmation message to the customer
+                        alert("Payment successful. Thanks for helping out!");
+                        document.getElementById('blackout').style.opacity = `0`;
+                        document.getElementById('blackout').style.height = "0";
+                    });
+                },
+                onCancel: (data, actions) => {
+                    alert("Payment canceled. Your account will not be charged.");
+                    document.getElementById('blackout').style.opacity = `0`;
+                    document.getElementById('blackout').style.height = "0";
+                },
+                onError: (data, actions) => {
+                    alert("An error occurred. Your account will not be charged");
+                    document.getElementById('blackout').style.opacity = `0`;
+                    document.getElementById('blackout').style.height = "0";
+                },
+                style: {
+                    color: 'gold',
+                    size: 'small'
+                }
+            }, '#paypal-button');
         </script>
     </body>
 </html>
