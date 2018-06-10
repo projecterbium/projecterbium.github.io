@@ -206,10 +206,7 @@
             </form>
         </div>
         <input class="input-field" id="search" placeholder="Search..." type="text">
-        <a class='dropdown-trigger btn' id="menu-trigger" data-target="sign-out-menu"><i class="material-icons">menu</i></a>
-        <ul id="sign-out-menu" class='dropdown-content'>
-            <li onclick="firebase.auth().signOut();">Log Out</li>
-        </ul>
+        <a class='dropdown-trigger btn' id="menu-trigger" data-target="sign-out-menu"><i class="material-icons">exit_to_app</i></a>
         <div id="blackout">
             <div id="payment-box">
                 <div id="paypal-button"></div>
@@ -492,10 +489,8 @@
                     size: 'small'
                 }
             }, '#paypal-button');
-            M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'), {
-                alignment: 'right',
-                constrainWidth: false,
-
+            document.getElementById('menu-trigger').addEventListener('click', e => {
+                firebase.auth().signOut();
             });
         </script>
     </body>
