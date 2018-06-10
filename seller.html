@@ -92,14 +92,12 @@ function readURL(input) {
     console.log(picture)
     console.log(cost)
     console.log(description)
-    function writeUserData(name, picture, cost, description) {
   firebase.database().ref('/item/' + name).set({
     name: name,
     picture: picture,
     cost : cost,
     description: description
   });
-}
 
   }
 </script>
