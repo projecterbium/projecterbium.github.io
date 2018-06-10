@@ -151,6 +151,7 @@
                 padding: 10px 20px;
                 position: fixed;
                 top: 30px;
+                transition: top 500ms;
                 width: 30vw;
                 z-index: 9;
             }
@@ -166,6 +167,10 @@
                 position: fixed;
                 right: 50px;
             }
+
+            ul {
+                min-width: 100vh;
+            }
             ul li {
                 padding: 16px;
             }
@@ -180,7 +185,7 @@
             <form id="register-form">
                 <div id="image-previews" class="image-previews"></div>
                 <div class="input-field">
-                    <label for="name">Name</label>
+                    <label for="name">App Name</label>
                     <input class="validate" required id="name" type="text">
                 </div>
                 <div class="input-field">
@@ -206,7 +211,13 @@
             </form>
         </div>
         <input class="input-field" id="search" placeholder="Search..." type="text">
-        <a class='dropdown-trigger btn' id="menu-trigger" data-target="sign-out-menu"><i class="material-icons">exit_to_app</i></a>
+        <a class='dropdown-trigger btn' id="menu-trigger" data-target="sign-out-menu"><i class="material-icons">menu</i></a>
+        <ul id="sign-out-menu" class='dropdown-content'>
+            <li id="alphabetical">Alphabetical</li>
+            <li id="trending">Trending</li>
+            <li id="likes">Most likes</li>
+            <li onclick="firebase.auth().signOut();">Log out</li>
+        </ul>
         <div id="blackout">
             <div id="payment-box">
                 <div id="paypal-button"></div>
@@ -244,6 +255,7 @@
             let projectArray = [];
             let globalProjectArray = [];
             let timeoutToken = null;
+            let lastPosition = 0;
 
             // noinspection JSUnresolvedFunction
             // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
@@ -366,7 +378,7 @@
                     document.getElementById('blackout').style.height = "100vh";
                 });
                 const claps = document.createElement('a');
-                claps.className = "btn-floating btn-large waves-effect waves-light yellow";
+                claps.className = "btn-floating btn-large waves-effect waves-light red";
                 let clapsGiven = doc.data().claps || 0;
                 claps.textContent = `+${clapsGiven}`;
                 claps.addEventListener('click', e => {
@@ -491,13 +503,45 @@
                     size: 'small'
                 }
             }, '#paypal-button');
-            document.getElementById('menu-trigger').addEventListener('click', e => {
-                firebase.auth().signOut();
+
+            M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'));
+
+            document.getElementById('likes').addEventListener('click', e => {
+                projects.innerHTML = '';
+                globalProjectArray
+                    .sort((a, b) => b.data().claps - a.data().claps)
+                    .forEach(createProjectCard);
+            });
+            document.getElementById('trending').addEventListener('click', e => {
+                projects.innerHTML = '';
+                globalProjectArray
+                    .sort((a, b) => b.data().price - a.data().price)
+                    .forEach(createProjectCard);
+            });
+            document.getElementById('alphabetical').addEventListener('click', e => {
+                projects.innerHTML = '';
+                globalProjectArray
+                    .sort((a, b) => a.data().name > b.data().name ? 1:-1)
+                    .forEach(createProjectCard);
             });
 
             timeoutToken = setTimeout(() => {
                 firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             }, 1000);
+
+            projects.addEventListener('scroll', e => {
+                requestAnimationFrame(() => {
+                    const deltaY = projects.scrollTop - (lastPosition || 0);
+                    console.log(deltaY);
+                    if (deltaY > 0) {
+                        searchBox.style.top = "-100px";
+                    } else {
+                        searchBox.style.top = "30px";
+                    }
+
+                    lastPosition = projects.scrollTop;
+                })
+            });
         </script>
     </body>
 </html>
