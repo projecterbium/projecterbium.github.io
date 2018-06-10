@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+        <title>Look for projects</title>
+    </head>
+    <body>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="js/materialize.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
+        <script type="text/javascript" src="js/materialize.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
+        <script>
+            // Initialize Firebase
+            const config = {
+                apiKey: "AIzaSyDBzjLVkuyIoqA1CCpPKLEpjZ_XalZaS7A",
+                authDomain: "uberforce-v1.firebaseapp.com",
+                databaseURL: "https://uberforce-v1.firebaseio.com",
+                projectId: "uberforce-v1",
+                storageBucket: "uberforce-v1.appspot.com",
+                messagingSenderId: "35935706494"
+            };
+            firebase.initializeApp(config);
+        </script>
+        <script type="text/javascript">
+            // const provider = new firebase.auth.GoogleAuthProvider();
+            // firebase.auth().signInWithPopup(provider);
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    firebase.database().ref('/item/').once('value', snapshot => {
+                        const products = snapshot.val();
+                        Object.keys(products).forEach(value => {
+                            const product = products[value];
+                            const image = document.createElement('img');
+                            image.src = product[''];
+                        });
+                    });
+                } else {
+                    window.location.redirect("/index.html");
+                }
+            });
+        </script>
+    </body>
+</html>
