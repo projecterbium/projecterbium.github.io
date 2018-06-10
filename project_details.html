@@ -72,12 +72,12 @@
             projectId = "Mahdi"
             
             return firebase.database().ref('/item/' + projectId).once('value').then(function(snapshot) {
-                var name = (snapshot.val() && snapshot.val().name) || 'No Name';
-                var picture = (snapshot.val() && snapshot.val().picture);
-                var cost = (snapshot.val() && snapshot.val().cost) || 'cost';
-                var description = (snapshot.val() && snapshot.val().description) || 'description';
+              //  var name = (snapshot.val() && snapshot.val().name) || 'No Name';
+              //  var picture = (snapshot.val() && snapshot.val().picture);
+              //  var cost = (snapshot.val() && snapshot.val().cost) || 'cost';
+              //  var description = (snapshot.val() && snapshot.val().description) || 'description';
 
-                console.log(name)
+                console.log(snapshot.val())
             });
         </script>
   </body>
