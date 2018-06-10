@@ -69,6 +69,7 @@
             var projectId = url.searchParams.get("name");
             projectId = "Mahdi"
             
+            /*
             return firebase.database().ref('/item/' + projectId).once('value').then(function(snapshot) {
               //  var name = (snapshot.val() && snapshot.val().name) || 'No Name';
               //  var picture = (snapshot.val() && snapshot.val().picture);
@@ -77,6 +78,12 @@
 
                 console.log(snapshot.val())
             });
+            */
+
+            var starCountRef = firebase.database().ref('item/' + projectId);
+                starCountRef.on('value', function(snapshot) {
+                console.log(snapshot.val());
+                });
         </script>
   </body>
 </html>
