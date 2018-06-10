@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <link rel="stylesheet"
               href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <style>
             * {
                 -webkit-box-sizing: border-box;
@@ -55,7 +56,7 @@
                 -moz-box-shadow: 0 0 5px gray;
                 box-shadow: 0 0 5px gray;
                 min-height: 350px;
-                margin: 20px 20px 110px;
+                margin: 20px 20px 20%;
                 position: relative;
                 text-align: left;
                 padding: 20px;
@@ -110,26 +111,16 @@
                 width: 30vw;
             }
 
-            #register > img {
-                left: -48px;
+            #register > #register-pull-out {
+                left: -96px;
                 position: absolute;
-                top: calc(50vh - 16px);
+                top: calc(100vh - 80px);
             }
 
             #register > form {
                 display: table-cell;
                 overflow: scroll;
                 vertical-align: middle;
-            }
-
-            #register-pull-out {
-                cursor: pointer;
-                height: 32px;
-                transform: scaleX(1);
-            }
-
-            #register-pull-out.right {
-                transform: scaleX(-1);
             }
 
             .image-previews {
@@ -154,14 +145,9 @@
         <title>Erbium</title>
     </head>
     <body>
-        <div id="blackout">
-            <div id="payment-box">
-                <div id="paypal-button"></div>
-            </div>
-        </div>
         <div id="projects"></div>
         <div id="register">
-            <img id="register-pull-out" src="left-icon.png" alt="Register">
+            <a id="register-pull-out" class="btn-floating btn-large waves-effect waves-light blue"><i class="material-icons">add</i></a>
             <form id="register-form">
                 <div id="image-previews" class="image-previews"></div>
                 <div class="input-field">
@@ -185,8 +171,16 @@
                         <input class="file-path validate" type="text" placeholder="Upload one or more files">
                     </div>
                 </div>
-                <input class="btn" type="submit">
+                <button class="btn waves-effect waves-light" type="submit" name="action">Submit
+                    <i class="material-icons right">send</i>
+                </button>
             </form>
+        </div>
+        <input id="search" placeholder="Search..." type="text">
+        <div id="blackout">
+            <div id="payment-box">
+                <div id="paypal-button"></div>
+            </div>
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
         <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
@@ -207,6 +201,17 @@
             const settings = {/* your settings... */ timestampsInSnapshots: true};
             firestore.settings(settings);
 
+            const register = document.getElementById('register');
+            const registerPullOut = document.getElementById('register-pull-out');
+            const projects = document.getElementById('projects');
+            const registerForm = document.getElementById('register-form');
+            const name = document.getElementById('name');
+            const description = document.getElementById('description');
+            const price = document.getElementById('price');
+            const images = document.getElementById('images');
+            const imagePreviews = document.getElementById('image-previews');
+            let projectArray = [];
+
             // noinspection JSUnresolvedFunction
             // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
@@ -226,7 +231,7 @@
                             const descriptionElement = document.createElement('p');
                             descriptionElement.textContent = description;
                             const priceElement = document.createElement('h3');
-                            priceElement.textContent = `$${price}`;
+                            priceElement.textContent = `Valuation: $${price}`;
                             const thumbnailElement = document.createElement('div');
                             thumbnailElement.classList.add('image-previews');
                             for (let i = 0; i < images; i++) {
@@ -238,12 +243,6 @@
                                     thumbnailElement.appendChild(thumbnail);
                                 });
                             }
-                            const profile = document.createElement('img');
-                            profile.classList.add('round');
-                            profile.src = doc.data().profile;
-                            const creator = document.createElement('h4');
-                            creator.textContent = doc.data().creator;
-                            creator.title = doc.data().email;
 
                             const email = document.createElement('a');
                             email.textContent = `Help Out`;
@@ -256,11 +255,24 @@
                                 document.getElementById('blackout').style.opacity = `1`;
                                 document.getElementById('blackout').style.height = "100vh";
                             });
+                            const claps = document.createElement('a');
+                            claps.className = "btn-floating btn-large waves-effect waves-light yellow";
+                            let clapsGiven = doc.data().claps || 0;
+                            claps.textContent = `+${clapsGiven}`;
+                            claps.addEventListener('click', e => {
+                                if (localStorage.getItem(`hasClicked${name}`)) return;
+                                doc.ref.update({
+                                    claps: (clapsGiven) + 1
+                                });
+                                localStorage.setItem(`hasClicked${name}`, "true");
+                            });
+                            doc.ref.onSnapshot(snapshot => {
+                                claps.textContent = `+${snapshot.data().claps}`;
+                            });
 
                             const author = document.createElement('div');
-                            author.classList.add('author');
-                            author.appendChild(profile);
-                            author.appendChild(creator);
+                            author.classList.add('chip');
+                            author.innerHTML = `<img src='${doc.data().profile}'>${doc.data().creator}`;
                             const container = document.createElement('div');
                             container.appendChild(thumbnailElement);
                             container.appendChild(nameElement);
@@ -269,19 +281,25 @@
                             container.appendChild(email);
                             container.appendChild(donate);
                             container.appendChild(author);
+                            container.appendChild(claps);
                             container.classList.add('project');
 
                             projects.appendChild(container);
                         });
                     });
+                    firestore.doc(`users/${user.uid}`).onSnapshot(snapshot => {
+                        const data = snapshot.data() || {
+                            notifications: [],
+                            projects: []
+                        };
+                        data.notifications.forEach(value => {
+                            M.toast({html: value});
+                        });
+                        projectArray = data.projects;
+                    });
                 } else firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             });
 
-            const donateForm = document.getElementById('payment-box');
-
-            const register = document.getElementById('register');
-            const registerPullOut = document.getElementById('register-pull-out');
-            const projects = document.getElementById('projects');
             registerPullOut.addEventListener('click', e => {
                 registerPullOut.classList.contains('right') ? (() => {
                     projects.style.width = "100vw";
@@ -294,12 +312,6 @@
             });
             register.style.left = "100vw";
 
-            const registerForm = document.getElementById('register-form');
-            const name = document.getElementById('name');
-            const description = document.getElementById('description');
-            const price = document.getElementById('price');
-            const images = document.getElementById('images');
-            const imagePreviews = document.getElementById('image-previews');
             images.addEventListener('change', e => {
                 for (let i = 0; i < images.files.length; i++) {
                     const image = document.createElement('img');
@@ -331,6 +343,7 @@
                         uploadFilesStartingFrom(i + 1);
                     } else {
                         firestore.collection('projects').add({
+                            claps: 0,
                             creator: firebase.auth().currentUser.displayName,
                             email: firebase.auth().currentUser.email,
                             name: name.value,
@@ -341,6 +354,9 @@
                         }).then(snapshot => {
                             window.location.reload(true);
                         });
+                        firestore.doc(`users/${firebase.auth().currentUser.uid}`).update({
+                            projects: projectArray
+                        })
                     }
                 });
             }
@@ -374,18 +390,18 @@
 
                         // The payment is complete!
                         // You can now show a confirmation message to the customer
-                        alert("Payment successful. Thanks for helping out!");
+                        M.toast({html: "Payment successful. Thanks for helping out!"});
                         document.getElementById('blackout').style.opacity = `0`;
                         document.getElementById('blackout').style.height = "0";
                     });
                 },
                 onCancel: (data, actions) => {
-                    alert("Payment canceled. Your account will not be charged.");
+                    M.toast({html: "Payment canceled. Your account will not be charged."});
                     document.getElementById('blackout').style.opacity = `0`;
                     document.getElementById('blackout').style.height = "0";
                 },
                 onError: (data, actions) => {
-                    alert("An error occurred. Your account will not be charged");
+                    M.toast({html: "An error occurred. Your account will not be charged"});
                     document.getElementById('blackout').style.opacity = `0`;
                     document.getElementById('blackout').style.height = "0";
                 },
