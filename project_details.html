@@ -71,7 +71,7 @@
                     Cost of the Application
                 </span>
             </div>
-            <div class="center"></div>
+            <div class="center">
                 <span id="description" class="black-text">
                     Text describing the application.
                 </span>
@@ -85,6 +85,8 @@
         <script>
             var url = new URL(url_string);
             var projectId = url.searchParams.get("name");
+            projectId = "Mahdi"
+            
             return firebase.database().ref('/item/' + projectId).once('value').then(function(snapshot) {
                 var name = (snapshot.val() && snapshot.val().name) || 'No Name';
                 var picture = (snapshot.val() && snapshot.val().picture) || 'discus';
