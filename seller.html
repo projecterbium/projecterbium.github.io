@@ -70,6 +70,7 @@
 <script type="text/javascript">
 var imgData;
 var database = firebase.database();
+console.log(database)
 
 function readURL(input) {
 			if (input.files && input.files[0]) {
@@ -83,12 +84,16 @@ function readURL(input) {
 		}
 
   function send(){
-    name = document.getElementById("productName");
+    name = document.getElementById("productName").value;
     picture  = imgData;
-    cost = document.getElementById("cost");
-    description = document.getElementById("description")
+    cost = document.getElementById("cost").value;
+    description = document.getElementById("description").value;
+    console.log(name)
+    console.log(picture)
+    console.log(cost)
+    console.log(description)
     function writeUserData(name, picture, cost, description) {
-  firebase.database().ref('item/' + name).set({
+  firebase.database().ref('/item/' + name).set({
     name: name,
     picture: picture,
     cost : cost,

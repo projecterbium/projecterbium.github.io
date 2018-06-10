@@ -2,6 +2,41 @@
 <html lang="en" dir="ltr">
 
     <head>
+        <script>
+         // Initialize Firebase
+
+  var config = {
+    apiKey: "AIzaSyDBzjLVkuyIoqA1CCpPKLEpjZ_XalZaS7A",
+    authDomain: "uberforce-v1.firebaseapp.com",
+    databaseURL: "https://uberforce-v1.firebaseio.com",
+    projectId: "uberforce-v1",
+    storageBucket: "uberforce-v1.appspot.com",
+    messagingSenderId: "35935706494"
+  };
+  firebase.initializeApp(config);
+</script>
+  <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css" />
+  <script type="text/javascript">
+    // FirebaseUI config.
+    var uiConfig = {
+      signInSuccessUrl: 'startup.html',
+      signInOptions: [
+        // Leave the lines as is for the providers you want to offer your users.
+        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+        firebase.auth.FacebookAuthProvider.PROVIDER_ID,
+        firebase.auth.TwitterAuthProvider.PROVIDER_ID,
+        firebase.auth.GithubAuthProvider.PROVIDER_ID,
+        firebase.auth.EmailAuthProvider.PROVIDER_ID
+      ],
+      // Terms of service url.
+      tosUrl: '<your-tos-url>'
+    };
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+        </script>
       <meta charset="UTF-8">
       <title>Erbium</title>
       <!--Import Google Icon Font-->
@@ -42,5 +77,16 @@
                 <a class="waves-effect waves-light btn-large light-green darken-3"><i class="material-icons left">local_offer</i>Buy</a>
             </div>
         </div>
+        <script>
+            var userId = firebase.auth().currentUser.uid;
+            return firebase.database().ref('/item/' + userId).once('value').then(function(snapshot) {
+                var name = (snapshot.val() && snapshot.val().name) || 'No Name';
+                var picture = (snapshot.val() && snapshot.val().picture) || 'discus';
+                var cost = (snapshot.val() && snapshot.val().cost) || 'cost';
+                var description = (snapshot.val() && snapshot.val().description) || 'description';
+
+                console.log(name)
+            });
+        </script>
   </body>
 </html>
