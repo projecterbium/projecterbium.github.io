@@ -1,63 +1,263 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-        <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
         <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
-        <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css"/>
+              href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
         <style>
-            #firebaseui-auth-container {
-                padding-top: 100px;
+            * {
+                -webkit-box-sizing: border-box;
+                -moz-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 500ms;
+                -moz-transition: all 500ms;
+                -ms-transition: all 500ms;
+                -o-transition: all 500ms;
+                transition: all 500ms;
+            }
+
+            body {
+                overflow: hidden;
+            }
+
+            .project {
+                -webkit-box-shadow:  0 0 5px gray;
+                -moz-box-shadow:  0 0 5px gray;
+                box-shadow:  0 0 5px gray;
+                text-align: left;
+                overflow: hidden;
+                padding: 20px;
+            }
+
+            .project > .image-previews {
+                float: left;
+                height: 300px;
+                margin-right: 20px;
+                width: 300px;
+            }
+
+            #projects {
+                float: left;
+                height: 100vh;
+                padding: 10%;
+                text-align: center;
+                width: 69vw;
+            }
+
+            #register {
+                -webkit-box-shadow: 0 0 5px #000;
+                -moz-box-shadow: 0 0 5px #000;
+                box-shadow: 0 0 5px #000;
+                display: table;
+                float: right;
+                height: 100vh;
+                left: 30vw;
+                padding: 20px;
+                position: relative;
+                width: 30vw;
+            }
+
+            #register > img {
+                left: -48px;
+                position: absolute;
+                top: calc(50vh - 16px);
+            }
+
+            #register > form {
+                display: table-cell;
+                overflow: scroll;
+                vertical-align: middle;
+            }
+
+            #register-pull-out {
+                cursor: pointer;
+                height: 32px;
+                transform: scaleX(1);
+            }
+
+            #register-pull-out.right {
+                transform: scaleX(-1);
+            }
+
+            .image-previews {
+                height: 300px;
+                overflow-x: hidden;
+                position: relative;
+            }
+
+            .image-previews > .preview-image {
+                left: 0;
+                max-height: 100%;
+                max-width: 100%;
+                position: absolute;
+                top: 0;
             }
         </style>
-        <title>Magenta</title>
+        <title>Erbium</title>
     </head>
-    <body class="cyan lighten-5">
-        <nav>
-            <div class="nav-wrapper cyan">
-                <a href="#" class="brand-logo center">Erbium</a>
-            </div>
-        </nav>
-        <div id="firebaseui-auth-container"></div>
-        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-        <script type="text/javascript" src="js/materialize.min.js"></script>
+    <body>
+        <div id="projects"></div>
+        <div id="register">
+            <img id="register-pull-out" src="left-icon.png" alt="Register">
+            <form id="register-form">
+                <div id="image-previews" class="image-previews"></div>
+                <div class="input-field">
+                    <label for="name">Name</label>
+                    <input required id="name" type="text">
+                </div>
+                <div class="input-field">
+                    <label for="description">Description</label>
+                    <input required id="description" type="text">
+                </div>
+                <div class="input-field">
+                    <label for="price">Price</label>
+                    <input required id="price" placeholder="Price (USD)" type="number">
+                </div>
+                <div class="file-field input-field">
+                    <div class="btn">
+                        <span>File</span>
+                        <input required id="images" type="file" multiple accept="image/*">
+                    </div>
+                    <div class="file-path-wrapper">
+                        <input class="file-path validate" type="text" placeholder="Upload one or more files">
+                    </div>
+                </div>
+                <input class="btn" type="submit">
+            </form>
+        </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
-        <script type="text/javascript" src="js/materialize.min.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
-        <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase.js"></script>
+        <!--<script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-firestore.js"></script>-->
         <script>
             // Initialize Firebase
             const config = {
-                apiKey: "AIzaSyDBzjLVkuyIoqA1CCpPKLEpjZ_XalZaS7A",
-                authDomain: "uberforce-v1.firebaseapp.com",
-                databaseURL: "https://uberforce-v1.firebaseio.com",
-                projectId: "uberforce-v1",
-                storageBucket: "uberforce-v1.appspot.com",
-                messagingSenderId: "35935706494"
+                apiKey: "AIzaSyA0E1cYzEkrzEC_eV_zyueSP4E7e-IIbQ8",
+                authDomain: "erbium-61949.firebaseapp.com",
+                databaseURL: "https://erbium-61949.firebaseio.com",
+                projectId: "erbium-61949",
+                storageBucket: "erbium-61949.appspot.com",
+                messagingSenderId: "1048414895900"
             };
             firebase.initializeApp(config);
-        </script>
-        <script type="text/javascript">
-            // FirebaseUI config.
-            const uiConfig = {
-                signInSuccessUrl: 'startup.html',
-                signInOptions: [
-                    // Leave the lines as is for the providers you want to offer your users.
-                    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-                    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
-                    firebase.auth.TwitterAuthProvider.PROVIDER_ID,
-                    firebase.auth.GithubAuthProvider.PROVIDER_ID,
-                    firebase.auth.EmailAuthProvider.PROVIDER_ID
-                ],
-                // Terms of service url.
-                tosUrl: '<your-tos-url>'
-            };
-            // Initialize the FirebaseUI Widget using Firebase.
-            const ui = new firebaseui.auth.AuthUI(firebase.auth());
-            // The start method will wait until the DOM is loaded.
-            ui.start('#firebaseui-auth-container', uiConfig);
+
+            const firestore = firebase.firestore();
+            const settings = {/* your settings... */ timestampsInSnapshots: true};
+            firestore.settings(settings);
+
+            // noinspection JSUnresolvedFunction
+            // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+
+            // noinspection JSUnresolvedFunction
+            firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    const projects = document.getElementById('projects');
+                    projects.innerHTML = '';
+                    firestore.collection('projects').get().then(snapshot => {
+                        snapshot.forEach(doc => {
+                            const name = doc.data().name;
+                            const description = doc.data().description;
+                            const price = doc.data().price;
+                            const images = doc.data().images;
+                            const nameElement = document.createElement('h2');
+                            nameElement.textContent = name;
+                            const descriptionElement = document.createElement('p');
+                            descriptionElement.textContent = description;
+                            const priceElement = document.createElement('h3');
+                            priceElement.textContent = `$${price}`;
+                            const thumbnailElement = document.createElement('div');
+                            thumbnailElement.classList.add('image-previews');
+                            for (let i = 0; i < images; i++) {
+                                firebase.storage().ref().child(`${name}${i}`).getDownloadURL().then(url => {
+                                    const thumbnail = document.createElement('img');
+                                    thumbnail.style.left = `${i * 100}%`;
+                                    thumbnail.src = url;
+                                    thumbnail.classList.add('preview-image');
+                                    thumbnailElement.appendChild(thumbnail);
+                                });
+                            }
+
+                            const container = document.createElement('div');
+                            container.appendChild(thumbnailElement);
+                            container.appendChild(nameElement);
+                            container.appendChild(descriptionElement);
+                            container.appendChild(priceElement);
+                            container.classList.add('project');
+
+                            projects.appendChild(container);
+                        });
+                    });
+                } else window.location.reload(true)
+            });
+
+            const register = document.getElementById('register');
+            const registerPullOut = document.getElementById('register-pull-out');
+            registerPullOut.addEventListener('click', e => {
+                registerPullOut.classList.contains('right') ? (() => {
+                    registerPullOut.classList.remove('right');
+                })() : (() => {
+                    registerPullOut.classList.add('right');
+                })();
+                register.style.left = register.style.left === "30vw" ? "0" : "30vw";
+            });
+            register.style.left = "30vw";
+
+            const registerForm = document.getElementById('register-form');
+            const name = document.getElementById('name');
+            const description = document.getElementById('description');
+            const price = document.getElementById('price');
+            const images = document.getElementById('images');
+            const imagePreviews = document.getElementById('image-previews');
+            images.addEventListener('change', e => {
+                for (let i = 0; i < images.files.length; i++) {
+                    const image = document.createElement('img');
+                    const reader = new FileReader();
+                    reader.addEventListener('load', e => {
+                        image.classList.add('preview-image');
+                        image.style.left = `${i * 100}%`;
+                        image.src = reader.result;
+                        imagePreviews.appendChild(image);
+                    });
+                    reader.readAsDataURL(images.files[i]);
+                }
+            });
+            setInterval(() => {
+                const slideshows = document.getElementsByClassName('image-previews');
+                for (let i = 0; i < slideshows.length; i++) {
+                    console.log(`Running a slideshow tick on ${i}`);
+                    slideshowTick(slideshows[i]);
+                }
+            }, 5000);
+
+            registerForm.addEventListener('submit', e => {
+                e.preventDefault();
+                uploadFilesStartingFrom(0); // Recursively uploads all files
+            });
+
+            function uploadFilesStartingFrom(i) {
+                console.log(`Starting to upload file ${i}`);
+                firebase.storage().ref().child(`${name.value}${i}`).put(images.files[i]).then(snapshot => {
+                    if (i + 1 < images.files.length) {
+                        console.log(`Put ${i}, moving on`);
+                        uploadFilesStartingFrom(i + 1);
+                    } else {
+                        console.log(`Placed all ${images.files.length}, storing in database.`);
+                        firestore.collection('projects').add({
+                            name: name.value,
+                            description: description.value,
+                            price: price.value,
+                            images: images.files.length
+                        });
+                    }
+                });
+            }
+
+            function slideshowTick(container) {
+                let previewImages = container.childNodes;
+                console.log(`Element has ${previewImages.length} attached nodes`);
+                previewImages.forEach(image => {
+                    image.style.left = `${(parseInt(image.style.left) - 100) % (previewImages.length * 100)}%`;
+                });
+            }
         </script>
     </body>
 </html>
