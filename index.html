@@ -186,7 +186,7 @@
                             projects.appendChild(container);
                         });
                     });
-                } else window.location.reload(true)
+                } else firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             });
 
             const register = document.getElementById('register');
