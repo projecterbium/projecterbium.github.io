@@ -67,7 +67,10 @@
          <div class="center">
             <img class="responsive-img" src="bigboys.jpg" height="250" width="500">
             <div class="center">
-                <span class="black-text">
+                <span id="cost" class="black-text">
+                    Cost of the Application
+                </span>
+                <span id="description" class="black-text">
                     Text describing the application.
                 </span>
             </div>
@@ -78,8 +81,9 @@
             </div>
         </div>
         <script>
-            var userId = firebase.auth().currentUser.uid;
-            return firebase.database().ref('/item/' + userId).once('value').then(function(snapshot) {
+            var url = new URL(url_string);
+            var projectId = url.searchParams.get("name");
+            return firebase.database().ref('/item/' + projectId).once('value').then(function(snapshot) {
                 var name = (snapshot.val() && snapshot.val().name) || 'No Name';
                 var picture = (snapshot.val() && snapshot.val().picture) || 'discus';
                 var cost = (snapshot.val() && snapshot.val().cost) || 'cost';
