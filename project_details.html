@@ -5,19 +5,6 @@
          <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
          <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
 
-         <script>
-  
-  var config = {
-    apiKey: "AIzaSyDBzjLVkuyIoqA1CCpPKLEpjZ_XalZaS7A",
-    authDomain: "uberforce-v1.firebaseapp.com",
-    databaseURL: "https://uberforce-v1.firebaseio.com",
-    projectId: "uberforce-v1",
-    storageBucket: "uberforce-v1.appspot.com",
-    messagingSenderId: "35935706494"
-  };
-  firebase.initializeApp(config);
-     </script>
-
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css" />
       <meta charset="UTF-8">
       <title>Erbium</title>
@@ -47,7 +34,7 @@
     <!-- The surrounding HTML is left untouched by FirebaseUI.
          Your app may use that space for branding, controls and other customizations.-->
          <div class="center">
-            <img class="responsive-img" src="bigboys.jpg" height="250" width="500">
+            <img id="picture" class="responsive-img" src="bigboys.jpg" height="250" width="500">
             <div class="center">
                 <span id="cost" class="black-text">
                     Cost of the Application
@@ -65,6 +52,17 @@
                 </div>
         </div>
         <script>
+            // Initialize Firebase
+            const config = {
+                apiKey: "AIzaSyDBzjLVkuyIoqA1CCpPKLEpjZ_XalZaS7A",
+                authDomain: "uberforce-v1.firebaseapp.com",
+                databaseURL: "https://uberforce-v1.firebaseio.com",
+                projectId: "uberforce-v1",
+                storageBucket: "uberforce-v1.appspot.com",
+                messagingSenderId: "35935706494"
+            };
+            firebase.initializeApp(config);
+
             url_string = window.location;
             var url = new URL(url_string);
             //var projectId = url.searchParams.get("name");
@@ -85,6 +83,11 @@
                 if (user) {
                     firebase.database().ref('/item/' + projectId).once('value', snapshot => {
                         console.log(snapshot.val());
+                        document.getElementById("picture").src = snapshot.val().picture
+                        document.getElementById("description").textContent = snapshot.val().description
+                        document.getElementById("cost").textContent = snapshot.val().cost
+
+
                     });
                 } else {
                     window.location.redirect("/index.html");
