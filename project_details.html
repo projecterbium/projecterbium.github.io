@@ -2,8 +2,6 @@
 <html lang="en" dir="ltr">
 
     <head>
-        
-         // Initialize Firebase
          <script src="https://www.gstatic.com/firebasejs/3.8.0/firebase.js"></script>
          <script src="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.js"></script>
 
@@ -19,7 +17,7 @@
   };
   firebase.initializeApp(config);
      </script>
-     
+
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/1.0.1/firebaseui.css" />
       <meta charset="UTF-8">
       <title>Erbium</title>
@@ -73,7 +71,7 @@
             
             return firebase.database().ref('/item/' + projectId).once('value').then(function(snapshot) {
                 var name = (snapshot.val() && snapshot.val().name) || 'No Name';
-                var picture = (snapshot.val() && snapshot.val().picture) || 'discus';
+                var picture = (snapshot.val() && snapshot.val().picture) ;
                 var cost = (snapshot.val() && snapshot.val().cost) || 'cost';
                 var description = (snapshot.val() && snapshot.val().description) || 'description';
 
