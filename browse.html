@@ -30,11 +30,6 @@
         <title>Look for projects</title>
     </head>
     <body class="cyan lighten-5">
-        <nav>
-            <div class="nav-wrapper cyan">
-                <a href="#" class="brand-logo center">Erbium</a>
-            </div>
-        </nav>
         <div id="product-container"></div>
         <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
         <script type="text/javascript" src="js/materialize.min.js"></script>
@@ -58,9 +53,10 @@
             // firebase.auth().signInWithPopup(provider);
             firebase.auth().onAuthStateChanged(user => {
                 if (user) {
-                    firebase.database().ref('/item/').once('value', snapshot => {
+                    firebase.database().ref('/item/').on('value', snapshot => {
                         const products = snapshot.val();
                         const productContainer = document.getElementById('product-container');
+                        productContainer.innerHTML = "";
                         Object.keys(products).forEach(value => {
                             const product = products[value];
                             const image = document.createElement('img');
