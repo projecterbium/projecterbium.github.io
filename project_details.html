@@ -84,9 +84,11 @@
                         console.log(snapshot.val());
                         document.getElementById("picture").src = snapshot.val().picture
                         document.getElementById("description").textContent = snapshot.val().description
-                        document.getElementById("cost").textContent = snapshot.val().cost
-
-
+                        document.getElementById("description").style.fontSize = 16
+                        document.getElementById("cost").textContent = "$ " + snapshot.val().cost
+                        document.getElementById("cost").style.fontSize = 32
+                        
+                        
                     });
                 } else {
                     window.location.redirect("/index.html");
