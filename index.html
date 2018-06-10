@@ -243,6 +243,7 @@
             const searchBox = document.getElementById('search');
             let projectArray = [];
             let globalProjectArray = [];
+            let timeoutToken = null;
 
             // noinspection JSUnresolvedFunction
             // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
@@ -257,6 +258,7 @@
             // noinspection JSUnresolvedFunction
             firebase.auth().onAuthStateChanged(user => {
                 if (user) {
+                    clearTimeout(timeoutToken);
                     firestore.doc(`users/${user.uid}`).get().then(snapshot => {
                         let data = snapshot.data() || {
                             projects: [],
@@ -492,6 +494,10 @@
             document.getElementById('menu-trigger').addEventListener('click', e => {
                 firebase.auth().signOut();
             });
+
+            timeoutToken = setTimeout(() => {
+                firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+            }, 1000);
         </script>
     </body>
 </html>
