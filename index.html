@@ -52,11 +52,13 @@
 
             .project {
                 background-color: white;
+                border-radius: 15px;
                 -webkit-box-shadow: 0 0 5px gray;
                 -moz-box-shadow: 0 0 5px gray;
                 box-shadow: 0 0 5px gray;
                 min-height: 350px;
                 margin: 20px;
+                overflow: hidden;
                 position: relative;
                 text-align: left;
                 padding: 20px;
@@ -158,6 +160,15 @@
                 -moz-box-shadow: 0 0 5px #555555;
                 box-shadow: 0 0 5px #555555;
             }
+
+            #menu-trigger {
+                top: 50px;
+                position: fixed;
+                right: 50px;
+            }
+            ul li {
+                padding: 16px;
+            }
         </style>
         <title>Erbium</title>
     </head>
@@ -195,6 +206,10 @@
             </form>
         </div>
         <input class="input-field" id="search" placeholder="Search..." type="text">
+        <a class='dropdown-trigger btn' id="menu-trigger" data-target="sign-out-menu"><i class="material-icons">menu</i></a>
+        <ul id="sign-out-menu" class='dropdown-content'>
+            <li onclick="firebase.auth().signOut();">Log Out</li>
+        </ul>
         <div id="blackout">
             <div id="payment-box">
                 <div id="paypal-button"></div>
@@ -245,23 +260,34 @@
             // noinspection JSUnresolvedFunction
             firebase.auth().onAuthStateChanged(user => {
                 if (user) {
-                    const projects = document.getElementById('projects');
-                    projects.innerHTML = '';
-                    firestore.collection('projects').get().then(snapshot => {
-                        snapshot.forEach(doc => {
-                            globalProjectArray.push(doc);
-                            createProjectCard(doc);
-                        });
-                    });
-                    firestore.doc(`users/${user.uid}`).onSnapshot(snapshot => {
-                        const data = snapshot.data() || {
-                            notifications: [],
-                            projects: []
+                    firestore.doc(`users/${user.uid}`).get().then(snapshot => {
+                        let data = snapshot.data() || {
+                            projects: [],
+                            notifications: []
                         };
-                        data.notifications.forEach(value => {
-                            M.toast({html: value});
-                        });
-                        projectArray = data.projects;
+                        firestore.doc(`users/${user.uid}`).set(data).then(() => {
+                            const projects = document.getElementById('projects');
+                            projects.innerHTML = '';
+                            firestore.collection('projects').get().then(snapshot => {
+                                snapshot.forEach(doc => {
+                                    globalProjectArray.push(doc);
+                                    createProjectCard(doc);
+                                });
+                            });
+                            firestore.doc(`users/${user.uid}`).onSnapshot(snapshot => {
+                                const data = snapshot.data() || {
+                                    notifications: [],
+                                    projects: []
+                                };
+                                data.notifications.forEach(value => {
+                                    M.toast({html: value});
+                                });
+                                snapshot.ref.update({
+                                    notifications: []
+                                });
+                                projectArray = data.projects;
+                            });
+                        })
                     });
                 } else firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
             });
@@ -330,6 +356,9 @@
                 email.textContent = `Help Out`;
                 email.classList.add('btn');
                 email.href = `mailto:${doc.data().email}`;
+                email.onclick = e => {
+                    sendNotificationToUser(doc.data().uid, `${firebase.auth().currentUser.displayName} wants to help build ${name}`);
+                };
                 const donate = document.createElement('button');
                 donate.textContent = `Invest`;
                 donate.classList.add('btn');
@@ -342,14 +371,24 @@
                 let clapsGiven = doc.data().claps || 0;
                 claps.textContent = `+${clapsGiven}`;
                 claps.addEventListener('click', e => {
-                    if (localStorage.getItem(`hasClicked${name}`)) return;
+                    // if (localStorage.getItem(`hasClicked${name}`)) return;
                     doc.ref.update({
                         claps: (clapsGiven) + 1
                     });
+                    if (clapsGiven + 1 === 10) {
+                        sendNotificationToUser(doc.data().uid, `Your project, ${name} is getting attention.`)
+                    }
+                    if (clapsGiven + 1 === 50) {
+                        sendNotificationToUser(doc.data().uid, `Your project, ${name} is getting popular.`)
+                    }
+                    if (clapsGiven + 1 === 100) {
+                        sendNotificationToUser(doc.data().uid, `Your project, ${name} is generating momentum.`)
+                    }
                     localStorage.setItem(`hasClicked${name}`, "true");
                 });
                 doc.ref.onSnapshot(snapshot => {
                     claps.textContent = `+${snapshot.data().claps}`;
+                    clapsGiven = snapshot.data().claps;
                 });
 
                 const author = document.createElement('div');
@@ -369,6 +408,16 @@
                 projects.appendChild(container);
             }
 
+            function sendNotificationToUser(uid, notification) {
+                firestore.doc(`users/${uid}`).get().then(snapshot => {
+                    const notifs = snapshot.data().notifications;
+                    notifs.push(notification);
+                    snapshot.ref.update({
+                        notifications: notifs
+                    });
+                });
+            }
+
             function uploadFilesStartingFrom(i) {
                 firebase.storage().ref().child(`${name.value}${i}`).put(images.files[i]).then(snapshot => {
                     if (i + 1 < images.files.length) {
@@ -382,13 +431,14 @@
                             description: description.value,
                             profile: firebase.auth().currentUser.photoURL,
                             price: price.value,
-                            images: images.files.length
+                            images: images.files.length,
+                            uid: firebase.auth().currentUser.uid
                         }).then(snapshot => {
                             window.location.reload(true);
                         });
                         firestore.doc(`users/${firebase.auth().currentUser.uid}`).update({
                             projects: projectArray
-                        })
+                        });
                     }
                 });
             }
@@ -442,6 +492,11 @@
                     size: 'small'
                 }
             }, '#paypal-button');
+            M.Dropdown.init(document.querySelectorAll('.dropdown-trigger'), {
+                alignment: 'right',
+                constrainWidth: false,
+
+            });
         </script>
     </body>
 </html>
