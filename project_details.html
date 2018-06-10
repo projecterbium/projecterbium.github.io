@@ -65,9 +65,9 @@
                 </div>
         </div>
         <script>
-            url_string = window.location
+            url_string = window.location;
             var url = new URL(url_string);
-            var projectId = url.searchParams.get("name");
+            //var projectId = url.searchParams.get("name");
             projectId = "Mahdi"
             
             /*
@@ -81,10 +81,16 @@
             });
             */
 
-            var starCountRef = firebase.database().ref('item/' + projectId);
-                starCountRef.once('value', function(snapshot) {
-                console.log(snapshot.val());
-                });
+              firebase.auth().onAuthStateChanged(user => {
+                if (user) {
+                    firebase.database().ref('/item/' + projectId).once('value', snapshot => {
+                        console.log(snapshot.val());
+                    });
+                } else {
+                    window.location.redirect("/index.html");
+                }
+            });
+    
         </script>
   </body>
 </html>
