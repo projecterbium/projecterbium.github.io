@@ -56,7 +56,7 @@
                 -moz-box-shadow: 0 0 5px gray;
                 box-shadow: 0 0 5px gray;
                 min-height: 350px;
-                margin: 20px 20px 20%;
+                margin: 20px;
                 position: relative;
                 text-align: left;
                 padding: 20px;
@@ -141,31 +141,49 @@
                 border-radius: 50%;
                 width: 64px;
             }
+
+            input#search {
+                background-color: white;
+                border-radius: 15px;
+                left: 30px;
+                padding: 10px 20px;
+                position: fixed;
+                top: 30px;
+                width: 30vw;
+                z-index: 9;
+            }
+
+            input#search:focus {
+                -webkit-box-shadow: 0 0 5px #555555;
+                -moz-box-shadow: 0 0 5px #555555;
+                box-shadow: 0 0 5px #555555;
+            }
         </style>
         <title>Erbium</title>
     </head>
     <body>
         <div id="projects"></div>
         <div id="register">
-            <a id="register-pull-out" class="btn-floating btn-large waves-effect waves-light blue"><i class="material-icons">add</i></a>
+            <a id="register-pull-out" class="btn-floating btn-large waves-effect waves-light blue"><i
+                    class="material-icons">add</i></a>
             <form id="register-form">
                 <div id="image-previews" class="image-previews"></div>
                 <div class="input-field">
                     <label for="name">Name</label>
-                    <input required id="name" type="text">
+                    <input class="validate" required id="name" type="text">
                 </div>
                 <div class="input-field">
                     <label for="description">Description</label>
-                    <input required id="description" type="text">
+                    <input class="validate" required id="description" type="text">
                 </div>
                 <div class="input-field">
                     <label for="price">Price</label>
-                    <input required id="price" placeholder="Price (USD)" type="number">
+                    <input class="validate" required id="price" placeholder="Price (USD)" type="number">
                 </div>
                 <div class="file-field input-field">
                     <div class="btn">
                         <span>File</span>
-                        <input required id="images" type="file" multiple accept="image/*">
+                        <input class="validate" required id="images" type="file" multiple accept="image/*">
                     </div>
                     <div class="file-path-wrapper">
                         <input class="file-path validate" type="text" placeholder="Upload one or more files">
@@ -176,7 +194,7 @@
                 </button>
             </form>
         </div>
-        <input id="search" placeholder="Search..." type="text">
+        <input class="input-field" id="search" placeholder="Search..." type="text">
         <div id="blackout">
             <div id="payment-box">
                 <div id="paypal-button"></div>
@@ -210,10 +228,19 @@
             const price = document.getElementById('price');
             const images = document.getElementById('images');
             const imagePreviews = document.getElementById('image-previews');
+            const searchBox = document.getElementById('search');
             let projectArray = [];
+            let globalProjectArray = [];
 
             // noinspection JSUnresolvedFunction
             // firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
+
+            searchBox.addEventListener('change', e => {
+                projects.innerHTML = '';
+                globalProjectArray
+                    .filter(it => `${it.data().name} ${it.data().description} ${it.data().creator}`.toLowerCase().includes(e.target.value.toLowerCase()))
+                    .forEach(createProjectCard);
+            });
 
             // noinspection JSUnresolvedFunction
             firebase.auth().onAuthStateChanged(user => {
@@ -222,69 +249,8 @@
                     projects.innerHTML = '';
                     firestore.collection('projects').get().then(snapshot => {
                         snapshot.forEach(doc => {
-                            const name = doc.data().name;
-                            const description = doc.data().description;
-                            const price = doc.data().price;
-                            const images = doc.data().images;
-                            const nameElement = document.createElement('h2');
-                            nameElement.textContent = name;
-                            const descriptionElement = document.createElement('p');
-                            descriptionElement.textContent = description;
-                            const priceElement = document.createElement('h3');
-                            priceElement.textContent = `Valuation: $${price}`;
-                            const thumbnailElement = document.createElement('div');
-                            thumbnailElement.classList.add('image-previews');
-                            for (let i = 0; i < images; i++) {
-                                firebase.storage().ref().child(`${name}${i}`).getDownloadURL().then(url => {
-                                    const thumbnail = document.createElement('img');
-                                    thumbnail.style.left = `${i * 100}%`;
-                                    thumbnail.src = url;
-                                    thumbnail.classList.add('preview-image');
-                                    thumbnailElement.appendChild(thumbnail);
-                                });
-                            }
-
-                            const email = document.createElement('a');
-                            email.textContent = `Help Out`;
-                            email.classList.add('btn');
-                            email.href = `mailto:${doc.data().email}`;
-                            const donate = document.createElement('button');
-                            donate.textContent = `Invest`;
-                            donate.classList.add('btn');
-                            donate.addEventListener('click', e => {
-                                document.getElementById('blackout').style.opacity = `1`;
-                                document.getElementById('blackout').style.height = "100vh";
-                            });
-                            const claps = document.createElement('a');
-                            claps.className = "btn-floating btn-large waves-effect waves-light yellow";
-                            let clapsGiven = doc.data().claps || 0;
-                            claps.textContent = `+${clapsGiven}`;
-                            claps.addEventListener('click', e => {
-                                if (localStorage.getItem(`hasClicked${name}`)) return;
-                                doc.ref.update({
-                                    claps: (clapsGiven) + 1
-                                });
-                                localStorage.setItem(`hasClicked${name}`, "true");
-                            });
-                            doc.ref.onSnapshot(snapshot => {
-                                claps.textContent = `+${snapshot.data().claps}`;
-                            });
-
-                            const author = document.createElement('div');
-                            author.classList.add('chip');
-                            author.innerHTML = `<img src='${doc.data().profile}'>${doc.data().creator}`;
-                            const container = document.createElement('div');
-                            container.appendChild(thumbnailElement);
-                            container.appendChild(nameElement);
-                            container.appendChild(descriptionElement);
-                            container.appendChild(priceElement);
-                            container.appendChild(email);
-                            container.appendChild(donate);
-                            container.appendChild(author);
-                            container.appendChild(claps);
-                            container.classList.add('project');
-
-                            projects.appendChild(container);
+                            globalProjectArray.push(doc);
+                            createProjectCard(doc);
                         });
                     });
                     firestore.doc(`users/${user.uid}`).onSnapshot(snapshot => {
@@ -336,6 +302,72 @@
                 e.preventDefault();
                 uploadFilesStartingFrom(0); // Recursively uploads all files
             });
+
+            function createProjectCard(doc) {
+                const name = doc.data().name;
+                const description = doc.data().description;
+                const price = doc.data().price;
+                const images = doc.data().images;
+                const nameElement = document.createElement('h2');
+                nameElement.textContent = name;
+                const descriptionElement = document.createElement('p');
+                descriptionElement.textContent = description;
+                const priceElement = document.createElement('h3');
+                priceElement.textContent = `Valuation: $${price}`;
+                const thumbnailElement = document.createElement('div');
+                thumbnailElement.classList.add('image-previews');
+                for (let i = 0; i < images; i++) {
+                    firebase.storage().ref().child(`${name}${i}`).getDownloadURL().then(url => {
+                        const thumbnail = document.createElement('img');
+                        thumbnail.style.left = `${i * 100}%`;
+                        thumbnail.src = url;
+                        thumbnail.classList.add('preview-image');
+                        thumbnailElement.appendChild(thumbnail);
+                    });
+                }
+
+                const email = document.createElement('a');
+                email.textContent = `Help Out`;
+                email.classList.add('btn');
+                email.href = `mailto:${doc.data().email}`;
+                const donate = document.createElement('button');
+                donate.textContent = `Invest`;
+                donate.classList.add('btn');
+                donate.addEventListener('click', e => {
+                    document.getElementById('blackout').style.opacity = `1`;
+                    document.getElementById('blackout').style.height = "100vh";
+                });
+                const claps = document.createElement('a');
+                claps.className = "btn-floating btn-large waves-effect waves-light yellow";
+                let clapsGiven = doc.data().claps || 0;
+                claps.textContent = `+${clapsGiven}`;
+                claps.addEventListener('click', e => {
+                    if (localStorage.getItem(`hasClicked${name}`)) return;
+                    doc.ref.update({
+                        claps: (clapsGiven) + 1
+                    });
+                    localStorage.setItem(`hasClicked${name}`, "true");
+                });
+                doc.ref.onSnapshot(snapshot => {
+                    claps.textContent = `+${snapshot.data().claps}`;
+                });
+
+                const author = document.createElement('div');
+                author.classList.add('chip');
+                author.innerHTML = `<img src='${doc.data().profile}'>${doc.data().creator}`;
+                const container = document.createElement('div');
+                container.appendChild(thumbnailElement);
+                container.appendChild(nameElement);
+                container.appendChild(descriptionElement);
+                container.appendChild(priceElement);
+                container.appendChild(email);
+                container.appendChild(donate);
+                container.appendChild(author);
+                container.appendChild(claps);
+                container.classList.add('project');
+
+                projects.appendChild(container);
+            }
 
             function uploadFilesStartingFrom(i) {
                 firebase.storage().ref().child(`${name.value}${i}`).put(images.files[i]).then(snapshot => {
