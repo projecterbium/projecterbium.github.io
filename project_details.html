@@ -81,7 +81,7 @@
             */
 
             var starCountRef = firebase.database().ref('item/' + projectId);
-                starCountRef.on('value', function(snapshot) {
+                starCountRef.once('value', function(snapshot) {
                 console.log(snapshot.val());
                 });
         </script>
